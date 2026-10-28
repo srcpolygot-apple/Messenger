@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { AuthRequest, authMiddleware } from '../middlewares/auth';
+import { userActionLimiter } from '../middlewares/rateLimiter';
 import {
   createGroup,
   getUserGroups,
@@ -15,7 +16,7 @@ import { getUserById } from '../models/user';
 export const groupRouter = Router();
 
 // Create group
-groupRouter.post('/', authMiddleware, (req: AuthRequest, res) => {
+groupRouter.post('/', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
     const { groupName, description, memberIds } = req.body;
 
@@ -46,7 +47,7 @@ groupRouter.post('/', authMiddleware, (req: AuthRequest, res) => {
 });
 
 // Get user groups
-groupRouter.get('/', authMiddleware, (req: AuthRequest, res) => {
+groupRouter.get('/', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
     const groups = getUserGroups(req.userId!);
     res.json(groups);
@@ -57,7 +58,7 @@ groupRouter.get('/', authMiddleware, (req: AuthRequest, res) => {
 });
 
 // Get group details
-groupRouter.get('/:groupId', authMiddleware, (req: AuthRequest, res) => {
+groupRouter.get('/:groupId', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
     const { groupId } = req.params;
 
@@ -76,7 +77,7 @@ groupRouter.get('/:groupId', authMiddleware, (req: AuthRequest, res) => {
 });
 
 // Get group members
-groupRouter.get('/:groupId/members', authMiddleware, (req: AuthRequest, res) => {
+groupRouter.get('/:groupId/members', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
     const { groupId } = req.params;
 
@@ -90,7 +91,7 @@ groupRouter.get('/:groupId/members', authMiddleware, (req: AuthRequest, res) => 
 });
 
 // Add member to group
-groupRouter.post('/:groupId/members', authMiddleware, (req: AuthRequest, res) => {
+groupRouter.post('/:groupId/members', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
     const { groupId } = req.params;
     const { userId } = req.body;
@@ -115,7 +116,7 @@ groupRouter.post('/:groupId/members', authMiddleware, (req: AuthRequest, res) =>
 });
 
 // Update group member role
-groupRouter.put('/:groupId/members/:userId/role', authMiddleware, (req: AuthRequest, res) => {
+groupRouter.put('/:groupId/members/:userId/role', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
     const { groupId, userId } = req.params;
     const { role } = req.body;
@@ -140,7 +141,7 @@ groupRouter.put('/:groupId/members/:userId/role', authMiddleware, (req: AuthRequ
 });
 
 // Remove member from group
-groupRouter.delete('/:groupId/members/:userId', authMiddleware, (req: AuthRequest, res) => {
+groupRouter.delete('/:groupId/members/:userId', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
     const { groupId, userId } = req.params;
 
@@ -159,7 +160,7 @@ groupRouter.delete('/:groupId/members/:userId', authMiddleware, (req: AuthReques
 });
 
 // Update group
-groupRouter.put('/:groupId', authMiddleware, (req: AuthRequest, res) => {
+groupRouter.put('/:groupId', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
     const { groupId } = req.params;
     const { groupName, groupPicture, description } = req.body;

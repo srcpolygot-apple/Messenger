@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { AuthRequest, authMiddleware } from '../middlewares/auth';
+import { authLimiter, userActionLimiter } from '../middlewares/rateLimiter';
 import { createUser, getUserByPhone, verifyPassword, getUserById, updateUserProfile, searchUsers, setUserOnlineStatus } from '../models/user';
 import { generateToken } from '../utils/jwt';
 
 export const authRouter = Router();
 
-// Sign up
-authRouter.post('/signup', (req, res) => {
+// Sign up (with rate limiting)
+authRouter.post('/signup', authLimiter, (req, res) => {
   try {
     const { phoneNumber, username, password } = req.body;
 
@@ -39,8 +40,8 @@ authRouter.post('/signup', (req, res) => {
   }
 });
 
-// Login
-authRouter.post('/login', (req, res) => {
+// Login (with rate limiting)
+authRouter.post('/login', authLimiter, (req, res) => {
   try {
     const { phoneNumber, password } = req.body;
 
@@ -67,8 +68,8 @@ authRouter.post('/login', (req, res) => {
   }
 });
 
-// Get current user profile
-authRouter.get('/me', authMiddleware, (req: AuthRequest, res) => {
+// Get current user profile (with rate limiting)
+authRouter.get('/me', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
     const user = getUserById(req.userId!);
     if (!user) {
@@ -83,8 +84,8 @@ authRouter.get('/me', authMiddleware, (req: AuthRequest, res) => {
   }
 });
 
-// Update profile
-authRouter.put('/profile', authMiddleware, (req: AuthRequest, res) => {
+// Update profile (with rate limiting)
+authRouter.put('/profile', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
     const { username, status, profilePicture } = req.body;
 
@@ -111,17 +112,17 @@ authRouter.put('/profile', authMiddleware, (req: AuthRequest, res) => {
   }
 });
 
-// Search users
-authRouter.get('/search', authMiddleware, (req: AuthRequest, res) => {
+// Search users (POST for sensitive data, with rate limiting)
+authRouter.post('/search', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
-    const { q } = req.query;
+    const { query } = req.body;
 
-    if (!q || typeof q !== 'string') {
+    if (!query || typeof query !== 'string') {
       res.status(400).json({ error: 'Missing search query' });
       return;
     }
 
-    const users = searchUsers(q, 20);
+    const users = searchUsers(query, 20);
     res.json(users);
   } catch (error) {
     console.error('Error searching users:', error);
@@ -129,10 +130,16 @@ authRouter.get('/search', authMiddleware, (req: AuthRequest, res) => {
   }
 });
 
-// Get user by phone
-authRouter.get('/user/:phoneNumber', authMiddleware, (req: AuthRequest, res) => {
+// Get user by phone (with rate limiting)
+authRouter.post('/user-by-phone', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
-    const { phoneNumber } = req.params;
+    const { phoneNumber } = req.body;
+
+    if (!phoneNumber) {
+      res.status(400).json({ error: 'Phone number is required' });
+      return;
+    }
+
     const user = getUserByPhone(phoneNumber);
 
     if (!user) {

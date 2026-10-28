@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { AuthRequest, authMiddleware } from '../middlewares/auth';
+import { userActionLimiter } from '../middlewares/rateLimiter';
 import {
   addContact,
   getUserContacts,
@@ -11,7 +12,7 @@ import { getUserByPhone } from '../models/user';
 export const contactRouter = Router();
 
 // Add contact by phone number
-contactRouter.post('/', authMiddleware, (req: AuthRequest, res) => {
+contactRouter.post('/', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
     const { phoneNumber, displayName } = req.body;
 
@@ -50,7 +51,7 @@ contactRouter.post('/', authMiddleware, (req: AuthRequest, res) => {
 });
 
 // Get all contacts
-contactRouter.get('/', authMiddleware, (req: AuthRequest, res) => {
+contactRouter.get('/', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
     const contacts = getUserContacts(req.userId!);
     res.json(contacts);
@@ -61,7 +62,7 @@ contactRouter.get('/', authMiddleware, (req: AuthRequest, res) => {
 });
 
 // Update contact display name
-contactRouter.put('/:contactId', authMiddleware, (req: AuthRequest, res) => {
+contactRouter.put('/:contactId', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
     const { contactId } = req.params;
     const { displayName } = req.body;
@@ -86,7 +87,7 @@ contactRouter.put('/:contactId', authMiddleware, (req: AuthRequest, res) => {
 });
 
 // Delete contact
-contactRouter.delete('/:contactId', authMiddleware, (req: AuthRequest, res) => {
+contactRouter.delete('/:contactId', authMiddleware, userActionLimiter, (req: AuthRequest, res) => {
   try {
     const { contactId } = req.params;
 

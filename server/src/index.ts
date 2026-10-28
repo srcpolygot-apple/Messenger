@@ -8,6 +8,7 @@ import { authRouter } from './routes/auth';
 import { contactRouter } from './routes/contacts';
 import { messageRouter } from './routes/messages';
 import { groupRouter } from './routes/groups';
+import { generalLimiter } from './middlewares/rateLimiter';
 import { createMessage, getMessageById } from './models/message';
 import { setUserOnlineStatus } from './models/user';
 import { verifyToken } from './utils/jwt';
@@ -27,6 +28,9 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Apply general rate limiter to all routes
+app.use(generalLimiter);
 
 // Initialize database
 initializeDatabase();
