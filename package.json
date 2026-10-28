@@ -1,0 +1,36 @@
+{
+  "name": "messenger-app",
+  "version": "1.0.0",
+  "description": "A WhatsApp-like messaging application built with Node.js and TypeScript",
+  "main": "server/dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run dev --workspace=server & npm run dev --workspace=client",
+    "build": "npm run build --workspace=server && npm run build --workspace=client",
+    "start:server": "npm run start --workspace=server",
+    "start:client": "npm run start --workspace=client",
+    "server": "npm run dev --workspace=server",
+    "client": "npm run dev --workspace=client",
+    "lint": "eslint . --ext .ts,.tsx",
+    "test": "npm run test --workspace=server"
+  },
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "keywords": [
+    "messaging",
+    "whatsapp",
+    "chat",
+    "real-time"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "typescript": "^5.3.3"
+  }
+}
