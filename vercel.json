@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server/package.json",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/server" },
+    { "src": "/(.*)", "dest": "/client/$1" }
+  ],
+  "env": {
+    "NODEJS_ENV": "production",
+    "JWT_SECRET": "@jwt_secret"
+  }
+}
